@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+
+  app:
+    container_name: vn_auth_app
+    restart: on-failure
+    ports:
+      - 8010:8010
+    image: vn_auth_app
+    build:
+      context: ../
+      dockerfile: ./_docker/Dev.Dockerfile
+    # volumes must be set up according to context
+    volumes:
+      - ../:/app
+    env_file:
+      - ../envs/postgres.env
+      - ../envs/app.env
+    command: sh -c "ls -la /app && python manage.py runserver 0.0.0.0:8010"
+    depends_on:
+      - postgres
+    hostname: vn_auth_app
+
+  postgres:
+    container_name: vn_auth_postgres
+    restart: on-failure
+    ports:
+      - 7654:5432
+    image: postgres
+    env_file: ../envs/postgres.env
+    volumes:
+      - vn_auth_pgdata:/var/lib/postgresql/data
+
+volumes:
+  vn_auth_pgdata:
+
+networks:
+  vn_auth_network:
+    external: true
